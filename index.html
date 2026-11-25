@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Русский — Jeu de vocabulaire</title>
+<meta name="theme-color" content="#ffffff"><meta name="description" content="Apprendre le russe : vocabulaire, alphabet, écriture manuscrite, dialogues.">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css?v=8">
+</head><body>
+<div class="wrap">
+<header class="top"><div class="brand ru">Русский</div><span class="chip fire" id="chStreak">0</span><span class="chip" id="chXp">0 pts</span><button class="iconbtn" data-act="settings" aria-label="Réglages"></button></header>
+<main id="view"></main>
+</div>
+<nav class="tabs" aria-label="Navigation"><div class="tabs-in" id="tabs"></div></nav>
+<div id="run" hidden role="dialog" aria-label="Séance"><div class="rtop"><button class="iconbtn" data-act="end" aria-label="Quitter la séance"></button><div class="bar"><i id="rbar"></i></div><span class="chip" id="rxp">+0</span></div><div id="stage"></div><div id="fb" hidden aria-live="polite"></div></div>
+<div id="sheetbg" hidden><div id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js?v=8"></script>
+<script>addEventListener('load',()=>{const s=document.createElement('script');s.src='audio.js?v=8';document.body.appendChild(s)});</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body></html>

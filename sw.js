@@ -1,0 +1,4 @@
+const V='ru-v8';const F=['./','index.html','style.css?v=8','app.js?v=8','manifest.json','icon.svg','icon-192.png','icon-512.png','marck-script-cyrillic-400-normal.woff2','marck-script-latin-400-normal.woff2','nunito-cyrillic-400-normal.woff2','nunito-cyrillic-600-normal.woff2','nunito-cyrillic-800-normal.woff2','nunito-latin-400-normal.woff2','nunito-latin-600-normal.woff2','nunito-latin-800-normal.woff2'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(F)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request,{ignoreSearch:false}).then(r=>r||caches.match('index.html'))))});
