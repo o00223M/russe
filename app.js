@@ -309,6 +309,9 @@ RULES.push(...[["Consonnes douces : м', н', б', ф', в'", 4, "Devant я, ё,
 Object.assign(MN,{"университет": "Comme « université » : même mot.", "метро": "Comme « métro » (neutre en russe : оно).", "кино": "Comme « ciné » (neutre en russe : оно).", "кофе": "Comme « café ». Attention : masculin en russe (мой кофе).", "гитара": "Comme « guitare ».", "физика": "Comme « physique ».", "химия": "Comme « chimie ».", "биология": "Comme « biologie ».", "геология": "Comme « géologie ».", "бизнесмен": "Comme « businessman » : homme d'affaires.", "профессор": "Comme « professeur ».", "визит": "Comme « visite ».", "виза": "Comme « visa ».", "кабинет": "Comme « cabinet » : une pièce de travail.", "буфет": "Comme « buffet ».", "пакет": "Comme « paquet ».", "ферма": "Comme « ferme ».", "фермер": "Comme « fermier ».", "философ": "Comme « philosophe ».", "гений": "Comme « génie ».", "гимн": "Comme « hymne ».", "зовут": "Vient de звать (appeler). Меня зовут = on m'appelle = je m'appelle.", "мир": "Deux sens : « monde » et « paix ». Comme la station spatiale Mir.", "пять": "Cinq doigts : пять. Ne confonds pas avec пить (boire).", "пить": "Ne confonds pas avec пять (cinq).", "есть": "Sens 1 : il y a, avoir (у меня есть). Sens 2 : manger (ем, ешь…), voir leçon 3.", "друзья": "Pluriel irrégulier de друг (ami).", "дети": "Toujours au pluriel (enfants).", "деньги": "Toujours au pluriel (argent)."});
 ["университет", "метро", "кино", "кофе", "физика", "физик", "биология", "биолог", "геология", "геолог", "химия", "химик", "бизнесмен", "профессор", "визит", "виза", "гитара", "гимн", "гений", "кабинет", "буфет", "пакет", "кинотеатр", "киоск", "фирма", "ферма", "фермер", "философ", "офис", "сайт", "бюро", "проспект", "гимназия"].forEach(k=>TRANSP.add(k));
 
+const CONJ=[{"inf": "рабо́тать", "fr": "travailler", "f": ["рабо́таю", "рабо́таешь", "рабо́тает", "рабо́таем", "рабо́таете", "рабо́тают"], "frf": ["je travaille", "tu travailles", "il / elle travaille", "nous travaillons", "vous travaillez", "ils travaillent"], "imp": "рабо́тай", "impp": "рабо́тайте"}, {"inf": "отдыха́ть", "fr": "se reposer", "f": ["отдыха́ю", "отдыха́ешь", "отдыха́ет", "отдыха́ем", "отдыха́ете", "отдыха́ют"], "frf": ["je me repose", "tu te reposes", "il / elle se repose", "nous nous reposons", "vous vous reposez", "ils se reposent"], "imp": "отдыха́й", "impp": "отдыха́йте"}, {"inf": "де́лать", "fr": "faire", "f": ["де́лаю", "де́лаешь", "де́лает", "де́лаем", "де́лаете", "де́лают"], "frf": ["je fais", "tu fais", "il / elle fait", "nous faisons", "vous faites", "ils font"], "imp": "де́лай", "impp": "де́лайте"}, {"inf": "знать", "fr": "savoir, connaître", "f": ["зна́ю", "зна́ешь", "зна́ет", "зна́ем", "зна́ете", "зна́ют"], "frf": ["je sais", "tu sais", "il / elle sait", "nous savons", "vous savez", "ils savent"], "imp": "зна́й", "impp": "зна́йте"}];
+const CONJF=[["Что вы ___?", 2, 4, "Que faites-vous ?"], ["Что ты ___?", 2, 1, "Que fais-tu ?"], ["Я ___.", 0, 0, "Je travaille."], ["Здесь я ___.", 0, 0, "Ici, je travaille."], ["Мой друг то́же ___ здесь.", 0, 2, "Mon ami travaille aussi ici."], ["Мы ___ вме́сте.", 0, 3, "Nous travaillons ensemble."], ["Там я ___.", 1, 0, "Là-bas, je me repose."], ["Моя́ семья́ то́же ___ там.", 1, 2, "Ma famille se repose aussi là-bas."], ["Мы ___ вме́сте.", 1, 3, "Nous nous reposons ensemble."], ["Вы ___, кто э́то?", 3, 4, "Vous savez qui c'est ?"], ["Ты ___, кто э́то?", 3, 1, "Tu sais qui c'est ?"], ["Да, я ___.", 3, 0, "Oui, je sais."], ["Нет, я не ___.", 3, 0, "Non, je ne sais pas."], ["Извини́те, я не ___.", 3, 0, "Excusez-moi, je ne sais pas."]];
+
 TIPS.push("Pour la leçon 3, étudie en deux sessions courtes : le matin les mots nouveaux, le soir l’écriture et la dictée.","Les possessifs (мой, твой, наш, ваш) se choisissent avec le genre du nom, pas avec celui de la personne.","Quand tu dis un mot, imagine la photo. Quand tu vois la photo, dis le mot à voix haute.");
 
 /* ===== APPLICATION : noyau, état, audio, exercices ===== */
@@ -608,6 +611,62 @@ EX.dorder=ex=>{
     answered(ex,ok,{ans:'',note:ok?'Tout le dialogue est dans le bon ordre.':'Relis le dialogue du début : '+lines.slice(0,3).map(esc).join(' · ')+'…'});
   };
 };
+/* ----- conjugaison (leçon 4) ----- */
+const CPRON=['я','ты','он / она́','мы','вы','они́'],CPFR=['je','tu','il / elle','nous','vous','ils'],CEND=['ю','ешь','ет','ем','ете','ют'];
+const cstem=(v,i)=>v.f[i].slice(0,v.f[i].length-CEND[i].length);
+const cform=(v,i)=>`<span class="ru">${ru(cstem(v,i))}<b class="cend">${CEND[i]}</b></span>`;
+EX.cintro=ex=>{
+  const v=ex.v;
+  if(!v){
+    $('#stage').innerHTML=`<div class="q">Conjugaison · les verbes en -ать</div><div class="card flat"><p class="small">Pour conjuguer un verbe en -ать, tu enlèves <b>-ть</b> et tu ajoutes la terminaison qui va avec le pronom. Apprends ces 6 terminaisons : elles sont les mêmes pour <b>рабо́тать, отдыха́ть, де́лать, зна́ть</b>.</p>${CPRON.map((p,i)=>`<div class="ln"><div><span class="ru" style="font-size:22px">${p}</span> <span class="small muted">(${CPFR[i]})</span></div><div class="ru" style="font-size:26px;font-weight:800"><b class="cend">-${CEND[i]}</b></div></div>`).join('')}<p class="small muted">Ordre (impératif) : <b class="cend">-й</b> (tu) et <b class="cend">-йте</b> (vous).</p></div><button class="btn block" id="idone">Je commence</button>`;
+  }else{
+    $('#stage').innerHTML=`<div class="q">Conjugaison</div><div class="intro"><div class="big ru">${ru(v.inf)}</div><div class="mid" style="font-size:22px;font-weight:800">${esc(v.fr)}</div><div class="card flat">${CPRON.map((p,i)=>`<div class="ln" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><span class="ru" style="font-size:20px">${p}</span> ${cform(v,i)}<div class="small muted">${esc(v.frf[i])}</div></div>${spk(v.f[i])}</div>`).join('')}<div class="ln"><div><span class="small muted">ordre :</span> <span class="ru" style="font-size:20px">${ru(v.imp)}</span> · <span class="ru" style="font-size:20px">${ru(v.impp)}</span></div>${spk(v.imp)}</div></div><div class="row" style="justify-content:center"><button class="btn ghost" id="sayall">Tout écouter</button></div><button class="btn block" id="idone">Suivant</button></div>`;
+    $('#sayall').onclick=()=>sayMany(v.f);
+  }
+  addXP(3);$('#idone').onclick=()=>{R.i++;nextEx()};
+};
+EX.cchoose=ex=>{
+  const v=ex.v,p=ex.p;const used=new Set([v.f[p]]);const o=[v.f[p]];
+  shuf([0,1,2,3,4,5].filter(i=>i!==p)).slice(0,2).forEach(i=>{if(!used.has(v.f[i])){used.add(v.f[i]);o.push(v.f[i])}});
+  shuf(CONJ.filter(x=>x!==v)).forEach(x=>{if(o.length<4&&!used.has(x.f[p])){used.add(x.f[p]);o.push(x.f[p])}});
+  choose(ex,{q:'Choisis la bonne forme',box:`<div class="mid ru" style="font-size:34px">${CPRON[p]} …</div><div class="small muted">${esc(CPFR[p])} · <span class="ru">${ru(v.inf)}</span> (${esc(v.fr)})</div>`,cls:'one',opts:shuf(o).map(x=>({h:`<span class="ru" style="font-size:24px">${ru(x)}</span>`,v:x})),right:v.f[p],ans:`<span class="ru">${CPRON[p]} ${ru(v.f[p])}</span> <small class="muted">${esc(v.frf[p])}</small>`,say:v.f[p]});
+};
+EX.cend=ex=>{
+  const v=ex.v,p=ex.p;const o=shuf([0,1,2,3,4,5].filter(i=>i!==p)).slice(0,3).concat([p]);
+  choose(ex,{q:'Choisis la terminaison',box:`<div class="mid ru" style="font-size:34px">${CPRON[p]} ${ru(cstem(v,p))}<span style="border-bottom:3px solid var(--blue);display:inline-block;width:56px">&nbsp;</span></div><div class="small muted">${esc(CPFR[p])} · ${esc(v.fr)}</div>`,cls:'',opts:shuf(o).map(i=>({h:`<span class="ru" style="font-size:26px;font-weight:800">-${CEND[i]}</span>`,v:i})),right:p,ans:`<span class="ru">${CPRON[p]} ${cform(v,p)}</span> <small class="muted">${esc(v.frf[p])}</small>`,say:v.f[p]});
+};
+EX.ctype=ex=>{
+  const v=ex.v,p=ex.p;
+  typeUI(ex,{q:'Écris la forme du verbe',box:`<div class="mid ru" style="font-size:30px">${CPRON[p]} …</div><div class="small muted">${esc(v.frf[p])} · <span class="ru">${ru(v.inf)}</span></div>`,answer:v.f[p],len:norm(v.f[p]).length,ans:`<span class="ru">${CPRON[p]} ${cform(v,p)}</span>`,say:v.f[p]});
+};
+EX.cfill=ex=>{
+  const [t,vi,p,fr]=ex.c;const v=CONJ[vi];const parts=t.split('___');
+  const o=shuf([0,1,2,3,4,5].filter(i=>i!==p)).slice(0,3).concat([p]);
+  const full=parts.join(v.f[p]);
+  choose(ex,{q:'Complète la phrase',box:`<div class="mid ru" style="font-size:26px">${ru(parts[0])}<span style="border-bottom:3px solid var(--blue);display:inline-block;width:70px">&nbsp;</span>${ru(parts[1]||'')}</div><div class="small muted">${esc(fr)} · <span class="ru">${ru(v.inf)}</span></div>`,cls:'one',opts:shuf(o).map(i=>({h:`<span class="ru" style="font-size:22px">${ru(v.f[i])}</span>`,v:i})),right:p,ans:`<span class="ru">${ru(full)}</span>`,say:full});
+};
+EX.ctable=ex=>{
+  const v=ex.v;const order=shuf([0,1,2,3,4,5]);let placed=[];
+  $('#stage').innerHTML=`<div class="q">Range les formes : ${ru(v.inf)} (${esc(v.fr)})</div><div class="card flat" id="crows"></div><div class="tiles" id="bank"></div><button class="btn block" id="chk" disabled>Vérifier</button>`;
+  const draw=()=>{
+    $('#crows').innerHTML=CPRON.map((pr,i)=>`<div class="ln"><span class="ru" style="font-size:22px;min-width:84px">${pr}</span>${placed[i]!==undefined?`<button class="tile" data-r="${i}"><span class="ru">${ru(v.f[placed[i]])}</span></button>`:`<span class="small muted" style="${placed.length===i?'color:var(--blue);font-weight:800':''}">${placed.length===i?'← ici':'…'}</span>`}</div>`).join('');
+    $('#bank').innerHTML=order.map(i=>placed.includes(i)?'':`<button class="tile" data-i="${i}"><span class="ru">${ru(v.f[i])}</span></button>`).join('');
+    $('#chk').disabled=placed.length!==6;
+    $$('#bank .tile').forEach(b=>b.onclick=()=>{if(R.locked)return;placed.push(+b.dataset.i);draw()});
+    $$('#crows .tile').forEach(b=>b.onclick=()=>{if(R.locked)return;placed=placed.slice(0,+b.dataset.r);draw()});
+  };
+  draw();
+  $('#chk').onclick=()=>{
+    if(R.locked)return;const ok=placed.every((x,i)=>x===i);
+    $$('.tile').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+    answered(ex,ok,{ans:CPRON.map((p,i)=>`<div><span class="ru">${p} ${cform(v,i)}</span></div>`).join(''),note:ok?'Tableau complet.':'Les terminaisons dans l’ordre : -ю, -ешь, -ет, -ем, -ете, -ют.'});
+  };
+};
+EX.cimp=ex=>{
+  const v=ex.v;const pl=ex.pl;const right=pl?v.impp:v.imp;
+  const o=shuf([v.imp,v.impp,v.f[0],v.f[1]].filter((x,i,a)=>a.indexOf(x)===i)).slice(0,4);
+  choose(ex,{q:pl?'Dis « '+v.fr+' ! » à plusieurs personnes (ou en politesse)':'Dis « '+v.fr+' ! » à un ami (tu)',box:`<div class="mid ru" style="font-size:28px">${ru(v.inf)}</div>`,cls:'one',opts:o.map(x=>({h:`<span class="ru" style="font-size:24px">${ru(x)}</span>`,v:x})),right,ans:`<span class="ru">${ru(right)}!</span>`,say:right});
+};
 function contour(n){
   const d={1:'M4 12H70L96 30',2:'M4 28L22 8H44L74 30',4:'M4 8H26L36 26H64L98 6',3:'M4 26H62C80 26 88 20 98 6'}[n];
   return `<svg class="cont" viewBox="0 0 104 36" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -769,7 +828,8 @@ const MODES=[
 ['tf','Vrai ou faux','Image et mot','img'],
 ['poss','мой, моя, моё…','Possessifs','layers'],
 ['exam','Examen','Écris tout de mémoire','pen'],
-['dlg','Dialogue','À mémoriser (ex. 24)','chat']
+['dlg','Dialogue','À mémoriser (ex. 24)','chat'],
+['conj','Conjugaison','Verbes en -ать','blocks']
 ];
 function buildMode(id,p){
   const pool=shuf(poolFor(p));const q=[];
@@ -787,6 +847,14 @@ function buildMode(id,p){
   else if(id==='tf')shuf(pool.filter(w=>IMG[w.pk])).slice(0,12).forEach(w=>q.push({t:'tf',key:w.k,w}));
   else if(id==='poss'){const ns=pool.filter(w=>w.g);const ps=['мой','твой','наш','ваш'];ns.slice(0,12).forEach(w=>q.push({t:'poss',w,p:pick(ps)}))}
   else if(id==='exam'){pool.slice(0,10).forEach(w=>q.push({t:'typeru',key:w.k,w}));shuf(sp).slice(0,3).forEach(x=>q.push({t:'build',key:x.key,s:x,ens:true}))}
+  else if(id==='conj'){
+    q.push({t:'cintro'});
+    shuf(CONJ.slice()).forEach(v=>{const ps=shuf([0,1,2,3,4,5]);q.push({t:'cintro',v});q.push({t:'cchoose',v,p:ps[0]});q.push({t:'cchoose',v,p:ps[1]});q.push({t:'cend',v,p:ps[2]});q.push({t:'ctype',v,p:ps[3]})});
+    shuf(CONJF.slice()).slice(0,6).forEach(c=>q.push({t:'cfill',c}));
+    shuf(CONJ.slice()).slice(0,3).forEach(v=>q.push({t:'ctable',v}));
+    shuf(CONJ.slice()).forEach((v,i)=>q.push({t:'cimp',v,pl:i%2===1}));
+    shuf(CONJ.slice()).slice(0,2).forEach(v=>q.push({t:'ctype',v,p:(Math.random()*6)|0}));
+  }
   else if(id==='dlg'){const D=DIALOGS.find(d=>d[3]==='mem');if(D){const L=D[2].map(l=>({ru:l[0].replace(/^[—-]\s*/,''),fr:l[1].replace(/^[—-]\s*/,'')}));
     q.push({t:'dread',L,title:D[0]});
     L.forEach((l,i)=>{if(i)q.push({t:'dnext',L,i})});
@@ -830,12 +898,13 @@ VIEWS.today=()=>{
   return `<section class="sec"><div class="card hero"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="${done?'var(--green)':'var(--blue)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p)}"/></svg><div class="num">${xp}<small>/ ${goal} pts</small></div></div><div><h1>${done?'Objectif atteint':'Séance du jour'}</h1><p class="muted small">${st.seen} mots vus sur ${st.total}. ${due?`${due} à réviser.`:'Rien à réviser pour le moment.'}</p></div></div>
   <button class="btn block" data-act="daily" ${n?'':'disabled'}>${n?`Commencer la séance`:'Rien pour aujourd’hui'}</button>
   ${F===3||F==='all'?`<button class="btn soft block" data-act="mode" data-m="dlg" data-p="l3">Dialogue à mémoriser (exercice 24)</button>`:''}
+  ${F===4||F==='all'?`<button class="btn soft block" data-act="mode" data-m="conj" data-p="l4">Conjugaison : maîtriser les verbes</button>`:''}
   ${typeof F==='number'?`<button class="btn soft block" data-act="learn" data-l="${F}">Apprendre la leçon ${F} (série de 12 mots)</button>`:''}
   ${st.unseen&&nl===0?`<button class="btn soft block" data-act="more">Apprendre 5 mots de plus</button>`:''}
   </section>
   <section class="sec"><h2>Leçon en cours</h2><div class="modes" style="grid-template-columns:repeat(2,1fr)">${lessonCards}<button class="mode" data-act="focus" data-l="all" style="grid-column:1/-1;${F==='all'?'border-color:var(--blue);background:var(--blue-soft)':''}"><b>Toutes les leçons</b><span>Mélanger</span></button></div>${plan}</section>
   <section class="sec"><h2>Tes mots</h2><div class="card"><div class="stats"><div class="stat"><b>${st.unseen}</b><span>nouveaux</span></div><div class="stat"><b>${st.learn}</b><span>en cours</span></div><div class="stat"><b>${st.fam}</b><span>connus</span></div><div class="stat"><b>${st.sol}</b><span>solides</span></div></div><div class="meter" style="margin-top:12px" role="img" aria-label="Progression"><i style="width:${st.sol/st.total*100}%;background:var(--green)"></i><i style="width:${st.fam/st.total*100}%;background:var(--blue)"></i><i style="width:${st.learn/st.total*100}%;background:var(--amber)"></i></div><div class="legend"><span style="--c:var(--green)">solides</span><span style="--c:var(--blue)">connus</span><span style="--c:var(--amber)">en cours</span></div></div></section>
-  <section class="sec"><h2>S’entraîner</h2><div class="modes">${MODES.filter(m=>m[0]!=='dict'||audioOK).map(m=>`<button class="mode" data-act="mode" data-m="${m[0]}">${ico(m[3])}<b>${m[1]}</b><span>${m[2]}</span></button>`).join('')}</div>
+  <section class="sec"><h2>S’entraîner</h2><div class="modes">${MODES.filter(m=>(m[0]!=='dict'||audioOK)&&(m[0]!=='dlg'||F===3||F==='all')&&(m[0]!=='conj'||F===4||F==='all')).map(m=>`<button class="mode" data-act="mode" data-m="${m[0]}">${ico(m[3])}<b>${m[1]}</b><span>${m[2]}</span></button>`).join('')}</div>
   <div class="seg" role="group" aria-label="Portée">${[['l4','Leçon 4'],['l3','Leçon 3'],['l2','Leçon 2'],['l1','Leçon 1'],['all','Tout'],['weak','Mes points faibles']].map(x=>`<button data-act="pool" data-p="${x[0]}" aria-pressed="${POOL===x[0]}">${x[1]}</button>`).join('')}</div></section>
   <section class="sec"><h2>7 derniers jours</h2><div class="card"><div class="week">${wk.map(x=>`<div><i class="${x[1]?'':'z'}" style="height:${Math.max(4,x[1]/mx*60)}px"></i><span>${x[0]}</span></div>`).join('')}</div></div></section>
   <section class="sec"><div class="card flat small"><b>Pourquoi ces jeux marchent</b><ul style="margin:6px 0 0;padding-left:18px"><li><b>Se tester</b> : essayer de retrouver le mot fixe mieux que relire. Les exercices te demandent toujours de produire la réponse.</li><li><b>Répéter à intervalles croissants</b> : un mot réussi revient après 1, 2, 4, 8 puis 16 jours. Un mot raté revient dans 10 minutes.</li><li><b>Image et mot ensemble</b> : la photo donne un deuxième chemin vers le mot.</li><li><b>Écrire et écouter</b> : le clavier russe, la dictée et les anagrammes entraînent l’orthographe.</li><li><b>Mélanger les exercices</b> : changer de jeu rend l’apprentissage plus lent mais plus durable.</li></ul></div></section>
@@ -852,6 +921,7 @@ VIEWS.lessons=()=>{
     const rs=RULES.filter(r=>r[1]===L).sort((a,b)=>L===3?oi(a)-oi(b):0),ws=W.filter(w=>w.Ls.includes(L)),mem=L===3?DIALOGS.find(d=>d[3]==='mem'):null;
     return `<details class="les" ${L===4?'open':''}><summary>Leçon ${L}<span class="pill">${ws.length} mots</span><span class="pill g">${lessonStats(L).sol+lessonStats(L).fam} connus</span></summary><div class="les-in">
     ${mem?`<div class="card flat"><span class="pill r">À mémoriser</span> <b>${esc(mem[0].replace('À mémoriser : ',''))}</b><p class="small muted">Ton cahier indique « à mémoriser » pour ce dialogue de l’exercice 24.</p><button class="btn block" data-act="mode" data-m="dlg" data-p="l3">Apprendre ce dialogue</button></div>`:''}
+    ${L===4?`<div class="card flat"><span class="pill r">Nouveau</span> <b>Jeu de conjugaison</b><p class="small muted">Les verbes en -ать : terminaisons, formes, phrases à compléter, tableau à ranger.</p><button class="btn block" data-act="mode" data-m="conj" data-p="l4">Maîtriser la conjugaison</button></div>`:''}
     ${rs.map(r=>{const m=r[0].match(/ИК-(\d)/);return `<div class="rule"><h3>${esc(r[0])}</h3>${m?contour(+m[1]):''}<p>${esc(r[2])}</p><div class="ex">${r[3].map(exi).join('')}</div></div>`}).join('')}
     <div class="rule"><h3>Mots de la leçon ${L}</h3><div class="words-inline">${ws.map(wchip).join('')}</div></div>
     <button class="btn block" data-act="learn" data-l="${L}">Apprendre la leçon ${L}</button><button class="btn soft block" data-act="mode" data-m="recog" data-p="l${L}">Réviser la leçon ${L}</button><button class="btn ghost block" data-act="mode" data-m="exam" data-p="l${L}">Examen de la leçon ${L}</button></div></details>`}).join('')}</section>`;
@@ -891,7 +961,7 @@ VIEWS.words=()=>{
 function wordSheet(k){
   const w=BYK[k];if(!w)return;const c=S.cards[k];
   const ss=SENT.filter(s=>s.keys.includes(k)).slice(0,8);
-  openSheet(`<div class="hd"><h2>${esc(w.cat)}</h2><button class="iconbtn" data-act="close" aria-label="Fermer">${ico('x')}</button></div><div class="detail">${pic(w)}<div class="big ru">${ru(w.ru)}</div><div class="pr">[ ${esc(w.pr)} ]</div><div class="mid" style="font-size:26px;font-weight:800">${esc(w.fr)}</div><div class="row">${spk(w.ru)}${spk(w.ru,true)}</div>${w.mn?`<div class="mn">${esc(w.mn)}</div>`:''}<div class="tags"><span class="pill">Leçon ${w.Ls.join(' et ')}</span>${w.g?`<span class="pill">${w.g==='pl'?'pluriel':w.g}</span>`:''}<span class="pill ${c?'g':''}">${c?'vu '+c.n+' fois':'pas encore vu'}</span></div>${ss.map(s=>`<button class="exi" data-say="${esc(s.ru)}" style="width:100%"><span class="ru">${ru(s.ru)}</span><small>${esc(s.fr)}</small></button>`).join('')}</div>`);
+  openSheet(`<div class="hd"><h2>${esc(w.cat)}</h2><button class="iconbtn" data-act="close" aria-label="Fermer">${ico('x')}</button></div><div class="detail">${pic(w)}<div class="big ru">${ru(w.ru)}</div><div class="pr">[ ${esc(w.pr)} ]</div><div class="mid" style="font-size:26px;font-weight:800">${esc(w.fr)}</div><div class="row">${spk(w.ru)}${spk(w.ru,true)}</div>${w.mn?`<div class="mn">${esc(w.mn)}</div>`:''}<div class="tags"><span class="pill">Leçon ${w.Ls.join(' et ')}</span>${w.g?`<span class="pill">${w.g==='pl'?'pluriel':w.g}</span>`:''}<span class="pill ${c?'g':''}">${c?'vu '+c.n+' fois':'pas encore vu'}</span></div>${(()=>{const cv=typeof CONJ!=='undefined'&&CONJ.find(x=>strip(x.inf)===k);return cv?`<div class="card flat">${CPRON.map((p,i)=>`<div class="ln" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><span class="ru" style="font-size:20px">${p}</span> ${cform(cv,i)}<div class="small muted">${esc(cv.frf[i])}</div></div>${spk(cv.f[i])}</div>`).join('')}</div>`:''})()}${ss.map(s=>`<button class="exi" data-say="${esc(s.ru)}" style="width:100%"><span class="ru">${ru(s.ru)}</span><small>${esc(s.fr)}</small></button>`).join('')}</div>`);
 }
 function letterSheet(i){
   const l=LET[i];const e=l.ex;

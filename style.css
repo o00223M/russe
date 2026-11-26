@@ -263,3 +263,5 @@ details.les[open]>summary::after{transform:rotate(-135deg)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:380px){.big{font-size:46px}.stats{gap:4px}.kb{gap:4px}}
 .opts.three{grid-template-columns:repeat(3,1fr)}
+
+.cend{color:var(--blue);font-weight:800}
